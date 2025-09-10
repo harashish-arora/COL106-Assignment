@@ -100,13 +100,35 @@ READ file.txt
 
 ## 6. Error and Edge Case Handling
 
-- Creating a file that already exists → error.
-- Referring to a non-existent file → error.
-- Invalid usage (missing arguments) → usage error message.
-- Rolling back at root → error message.
+The system provides clear error messages for all invalid inputs and operations:
+
+- **File-related errors**
+  - Creating a file that already exists → `Error: File '<filename>' already exists.`
+  - Referring to a non-existent file → `Error: File '<filename>' not found.`
+
+- **Command usage errors**
+  - Missing arguments for any command → usage error message showing correct syntax.
+  - Empty content for `INSERT`/`UPDATE` → usage error message.
+  - Empty message for `SNAPSHOT` → usage error message.
+
+- **Rollback errors**
+  - Negative version ID → `Error: VersionID must be non-negative.`
+  - Nonexistent version ID → `Error: Version <id> not found for file '<filename>'.`
+  - Rollback at root → `Error: Cannot rollback from root version.`
+
+- **Heap query errors**
+  - Missing `<k>` → usage error message.
+  - Non-positive `k` → `Error: Invalid command. k must be positive.`
+  - `k` larger than number of files →  
+    `Error: k cannot exceed number of files. Currently only <n> file(s) exist.`
+
+- **Unknown command**
+  - Any unsupported command → `Error: Unknown command '<cmd>'.`
+
 
 ## 7. Design Choices / Assumptions
 
+- **Heap queries:** We explicitly disallow k > number of files, instead of returning fewer results. This ensures consistent, predictable error handling.
 - **Snapshot policy:** Snapshots do not create new nodes; they mark the current version.
 - **last_modified:** Updated only on CREATE, INSERT, UPDATE (not SNAPSHOT/ROLLBACK).
 - **Tie-breaking in heaps:** Arbitrary if two files have same timestamp/versions.
