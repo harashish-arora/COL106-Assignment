@@ -1,0 +1,64 @@
+CREATE research_paper.tex
+INSERT research_paper.tex Abstract
+SNAPSHOT research_paper.tex v1.0-Abstract
+INSERT research_paper.tex _Introduction
+SNAPSHOT research_paper.tex v1.1-Intro
+INSERT research_paper.tex _Methodology
+SNAPSHOT research_paper.tex v1.2-Methods
+ROLLBACK research_paper.tex 1
+INSERT research_paper.tex _Revised_Abstract
+SNAPSHOT research_paper.tex v1.0.1-revised-abstract
+INSERT research_paper.tex _New_Section
+SNAPSHOT research_paper.tex v1.0.2-new-section
+HISTORY research_paper.tex
+ROLLBACK research_paper.tex 2
+INSERT research_paper.tex _Alternative_Introduction
+SNAPSHOT research_paper.tex v1.1.1-alt-intro
+HISTORY research_paper.tex
+
+CREATE dataset.csv
+INSERT dataset.csv row1
+SNAPSHOT dataset.csv data-v1
+INSERT dataset.csv ,row2
+SNAPSHOT dataset.csv data-v2
+INSERT dataset.csv ,row3
+SNAPSHOT dataset.csv data-v3
+INSERT dataset.csv ,row4
+SNAPSHOT dataset.csv data-v4
+INSERT dataset.csv ,row5
+SNAPSHOT dataset.csv data-v5
+
+CREATE main.py
+INSERT main.py import_os
+SNAPSHOT main.py init
+BIGGEST_TREES 3
+BIGGEST_TREES 1
+RECENT_FILES 3
+RECENT_FILES 0
+UPDATE dataset.csv new_header
+RECENT_FILES 1
+
+CREATE research_paper.tex
+READ non_existent.file
+INSERT non_existent.file data
+SNAPSHOT non_existent.file msg
+HISTORY non_existent.file
+ROLLBACK research_paper.tex 100
+ROLLBACK research_paper.tex
+ROLLBACK research_paper.tex 0
+ROLLBACK
+INSERT
+UPDATE research_paper.tex
+SNAPSHOT research_paper.tex
+UPDATE research_paper.tex Attempted
+READ research_paper.tex
+
+CREATE notes.md
+SNAPSHOT notes.md first
+ROLLBACK notes.md
+ROLLBACK notes.md
+INSERT notes.md More notes
+SNAPSHOT notes.md second
+HISTORY notes.md
+BIGGEST_TREES 10
+RECENT_FILES 10

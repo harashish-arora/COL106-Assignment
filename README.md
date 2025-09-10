@@ -276,7 +276,7 @@ RECENT_FILES 10
 
 ## 11. How to Run the Test Cases
 
-1. Copy any test block above into a file, e.g., `test.in`.
+1. Copy any test block above into a file, e.g., `test.in` (or use the one given).
 2. Run the program with:
    ```
    ./main < test.in
