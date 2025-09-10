@@ -1,46 +1,236 @@
-#include "tree.hpp"
-#include <iostream>
+#include "file.hpp"      // File class for versioned files
+#include "file_hash.hpp" // FileHash for mapping filenames to File*
+#include "heap.hpp"      // MaxHeap for recent and biggest files
+#include <iostream>      // For input/output
+#include <sstream>       // For stringstream
+
 using namespace std;
 
-int main() {
-    try {
-        // 1. Create root version
-        TreeNode root(0, "Root version");
-        cout << "Root created: ID=" << root.get_version_id()
-             << ", content=\"" << root.get_content() << "\"\n";
+// Global file table and heaps
+FileHash file_table; // Maps filename to File*
+MaxHeap recentHeap(cmp_recent);   // Heap for most recently modified files
+MaxHeap biggestHeap(cmp_biggest); // Heap for files with most versions
 
-        // 2. Create a child version
-        TreeNode child1(1, "Child v1", &root);
-        root.add_child(&child1);
-        cout << "Child1 created under root: ID=" << child1.get_version_id()
-             << ", content=\"" << child1.get_content() << "\"\n";
+// Updates both heaps with the given file
+void update_heaps(File* f) {
+    recentHeap.update(f);
+    biggestHeap.update(f);
+}
 
-        // 3. Update content before snapshot
-        child1.update_content("Child v1 updated");
-        cout << "Child1 after update: content=\"" << child1.get_content() << "\"\n";
-
-        // 4. Snapshot the child
-        child1.snapshot("First stable version");
-        cout << "Child1 snapshotted with message: \"" << child1.get_message() << "\"\n";
-
-        // 5. Try to update after snapshot (should throw exception)
-        try {
-            child1.update_content("Another update");
-        } catch (const exception& e) {
-            cout << "Expected error on update after snapshot: " << e.what() << "\n";
-        }
-
-        // 6. Traverse parent/child
-        cout << "Child1's parent ID: " << child1.get_parent()->get_version_id() << "\n";
-        cout << "Root's first child ID: " << root.get_children()[0]->get_version_id() << "\n";
-
-        // 7. Print creation time
-        cout << "Root created at: " << ctime(&root.get_created_time());
-        cout << "Child1 snapshot at: " << ctime(&child1.get_snapshot_time());
-
-    } catch (const exception& e) {
-        cerr << "Unexpected error: " << e.what() << "\n";
+// Handles CREATE command
+void handle_create(stringstream& ss) {
+    string fname;
+    if (!(ss >> fname)) {
+        cout << "Error: Invalid command. Usage: CREATE <filename>\n";
+        return;
     }
+    if (file_table.exists(fname)) {
+        cout << "Error: File '" << fname << "' already exists.\n";
+        return;
+    }
+    File* f = new File(fname);
+    file_table.put(fname, f);
+    recentHeap.insert(f);
+    biggestHeap.insert(f);
+    cout << "File '" << fname << "' created successfully.\n";
+}
 
+// Handles READ command
+void handle_read(stringstream& ss) {
+    string fname;
+    if (!(ss >> fname)) {
+        cout << "Error: Invalid command. Usage: READ <filename>\n";
+        return;
+    }
+    File* f = file_table.get(fname);
+    if (!f) { 
+        cout << "Error: File '" << fname << "' not found.\n"; 
+        return; 
+    }
+    cout << "Content of '" << fname << "' (Version " 
+         << f -> get_total_versions()-1 << "):\n" 
+         << f -> Read() << "\n";
+}
+
+// Handles INSERT and UPDATE commands
+void handle_insert_update(stringstream& ss, bool is_insert) {
+    string fname;
+    if (!(ss >> fname)) {
+        cout << "Error: Invalid command. Usage: " << (is_insert ? "INSERT" : "UPDATE") << " <filename> <content>\n";
+        return;
+    }
+    string content;
+    getline(ss, content);
+    if (content.empty()) {
+        cout << "Error: Invalid command. Usage: " << (is_insert ? "INSERT" : "UPDATE") << " <filename> <content>\n";
+        return;
+    }
+    if (content[0] == ' ') content.erase(0,1);
+    File* f = file_table.get(fname);
+    if (!f) { 
+        cout << "Error: File '" << fname << "' not found.\n"; 
+        return; 
+    }
+    if (is_insert)
+        f -> Insert(content);
+    else
+        f -> Update(content);
+    update_heaps(f);
+    cout << "New version " << f -> get_active_version() -> get_version_id()
+         << " created for '" << fname 
+         << "'. Parent is version " 
+         << f -> get_active_version() -> get_parent() -> get_version_id()
+         << ".\n";
+}
+
+// Handles SNAPSHOT command
+void handle_snapshot(stringstream& ss) {
+    string fname;
+    if (!(ss >> fname)) {
+        cout << "Error: Invalid command. Usage: SNAPSHOT <filename> <message>\n";
+        return;
+    }
+    string message;
+    getline(ss, message);
+    if (message.empty()) {
+        cout << "Error: Invalid command. Usage: SNAPSHOT <filename> <message>\n";
+        return;
+    }
+    if (message[0] == ' ') message.erase(0,1);
+    File* f = file_table.get(fname);
+    if (!f) { 
+        cout << "Error: File '" << fname << "' not found.\n"; 
+        return; 
+    }
+    f -> Snapshot(message);
+    cout << "Snapshot created for '" << fname << "' with message: " << message << "\n";
+}
+
+// Handles ROLLBACK command
+void handle_rollback(stringstream& ss) {
+    string fname;
+    if (!(ss >> fname)) {
+        cout << "Error: Invalid command. Usage: ROLLBACK <filename> [versionID]\n";
+        return;
+    }
+    File* f = file_table.get(fname);
+    if (!f) { 
+        cout << "Error: File '" << fname << "' not found.\n"; 
+        return; 
+    }
+    int versionID;
+    if (ss >> versionID) {
+        try {
+            f -> Rollback(versionID);
+            cout << "Active version for '" << fname 
+                 << "' set to " << versionID << ".\n";
+        } catch (...) {
+            cout << "Error: Version " << versionID 
+                 << " not found for file '" << fname << "'.\n";
+        }
+    } else {
+        try {
+            int parentID = f -> get_active_version() -> get_parent() -> get_version_id();
+            f -> Rollback();
+            cout << "Active version for '" << fname 
+                 << "' set to parent version " << parentID << ".\n";
+        } catch (...) {
+            cout << "Error: Cannot rollback from root version.\n";
+        }
+    }
+}
+
+// Handles HISTORY command
+void handle_history(stringstream& ss) {
+    string fname;
+    if (!(ss >> fname)) {
+        cout << "Error: Invalid command. Usage: HISTORY <filename>\n";
+        return;
+    }
+    File* f = file_table.get(fname);
+    if (!f) { 
+        cout << "Error: File '" << fname << "' not found.\n"; 
+        return; 
+    }
+    auto hist = f -> History();
+    for (auto* node : hist) {
+        cout << node -> get_version_id() << " "
+             << node -> get_snapshot_time() << " "
+             << node -> get_message() << "\n";
+    }
+}
+
+// Handles RECENT_FILES and BIGGEST_TREES commands
+void handle_heap_query(MaxHeap& heap, int num, bool is_recent) {
+    vector<File*> results;
+    for (int i = 0; i < num && !heap.empty(); i++) {
+        File* f = heap.extract_max();
+        results.push_back(f);
+    }
+    for (File* f : results) {
+        cout << f -> get_filename() << " "
+             << (is_recent ? f -> get_last_modified() : f -> get_total_versions()) << "\n";
+        heap.insert(f); // put back
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false); // Speeds up cin/cout
+    cin.tie(nullptr);            // Unties cin from cout
+
+    string line;
+    while (getline(cin, line)) {
+        if (line.empty()) continue;
+        stringstream ss(line);
+        string cmd;
+        ss >> cmd;
+
+        try {
+            // Modular command dispatch
+            if (cmd == "CREATE") {
+                handle_create(ss);
+            }
+            else if (cmd == "READ") {
+                handle_read(ss);
+            }
+            else if (cmd == "INSERT") {
+                handle_insert_update(ss, true);
+            }
+            else if (cmd == "UPDATE") {
+                handle_insert_update(ss, false);
+            }
+            else if (cmd == "SNAPSHOT") {
+                handle_snapshot(ss);
+            }
+            else if (cmd == "ROLLBACK") {
+                handle_rollback(ss);
+            }
+            else if (cmd == "HISTORY") {
+                handle_history(ss);
+            }
+            else if (cmd == "RECENT_FILES") {
+                int num; 
+                if (!(ss >> num)) {
+                    cout << "Error: Invalid command. Usage: RECENT_FILES <k>\n";
+                    continue;
+                }
+                handle_heap_query(recentHeap, num, true);
+            }
+            else if (cmd == "BIGGEST_TREES") {
+                int num; 
+                if (!(ss >> num)) {
+                    cout << "Error: Invalid command. Usage: BIGGEST_TREES <k>\n";
+                    continue;
+                }
+                handle_heap_query(biggestHeap, num, false);
+            }
+            else {
+                cout << "Error: Unknown command '" << cmd << "'.\n";
+            }
+        }
+        catch (exception& e) {
+            cout << "Error: " << e.what() << "\n";
+        }
+    }
     return 0;
 }
