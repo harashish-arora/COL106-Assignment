@@ -68,6 +68,8 @@ READ file.txt
 ./main < test.in
 ```
 
+Successful outputs are colour-coded green, and non-successful commands leading to errors are colour-coded yellow or red depending on their severity.
+
 ## 5. Supported Commands and Syntax
 
 - `CREATE <filename>`  
@@ -250,7 +252,7 @@ ROLLBACK
 INSERT
 UPDATE research_paper.tex
 SNAPSHOT research_paper.tex
-UPDATE research_paper.tex 0 Cannot_update_snapshot_directly
+UPDATE research_paper.tex Attempted
 READ research_paper.tex
 ```
 
