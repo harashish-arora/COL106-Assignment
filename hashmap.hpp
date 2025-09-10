@@ -15,7 +15,7 @@ public:
     
     // Associates the given id with the provided TreeNode pointer
     void put(int id, TreeNode* Node) {
-        if (id >= static_cast<int>(v.size())) { // If id is out of current bounds, resize vector
+        if (id >= (v.size())) { // If id is out of current bounds, resize vector
             v.resize(id + 1, nullptr); // Resize vector and initialize new elements to nullptr
         }
         v[id] = Node; // Store the TreeNode pointer at index id
@@ -23,7 +23,7 @@ public:
 
     // Returns the TreeNode pointer associated with id, or nullptr if not present
     TreeNode* get(int id) const {
-        if (id < 0 || id >= static_cast<int>(v.size())) { // Check for out-of-bounds id
+        if (id < 0 || id >= (v.size())) { // Check for out-of-bounds id
             return nullptr; // Return nullptr if id is invalid
         }
         return v[id]; // Return the TreeNode pointer at index id
