@@ -32,6 +32,13 @@ This project implements a simplified version control system for files using cust
 
 ## 3. Compilation Instructions
 
+(One Time)
+To make the build.sh executabe, run this once:
+
+```
+chmod +x build.sh
+```
+
 To compile, use the provided shell script:
 
 ```sh
