@@ -10,6 +10,7 @@ using namespace std;
 #define ERR_COLOR_RED "\033[31m"
 #define SUCCESS_COLOR "\033[32m"
 #define RESET_COLOR "\033[0m"
+#define EXIT_COLOR "\033[34m"
 
 // Global file table and heaps
 FileHash file_table; // Maps filename to File*
@@ -243,6 +244,10 @@ int main() {
             else if (cmd == "HISTORY") handle_history(ss);
             else if (cmd == "RECENT_FILES") handle_heap_query(recentHeap, ss, true);
             else if (cmd == "BIGGEST_TREES") handle_heap_query(biggestHeap, ss, false);
+            else if (cmd == "EXIT") {
+                cout << EXIT_COLOR << "Exiting shell. Goodbye!\n" << RESET_COLOR;
+                break;
+            }
             else cout << ERR_COLOR_RED << "Error: Unknown command '" << cmd << "'.\n" << RESET_COLOR;
         }
         catch (exception& e) {
