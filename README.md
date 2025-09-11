@@ -31,9 +31,10 @@ This project implements a simplified version control system for files using cust
   Shell script to compile the project using g++/clang++.
 
 ## 3. Compilation Instructions
+Ensure you are in a UNIX or UNIX-like environment (and thus you must be in GitBash or WSL if you are in Windows).
 
 (One Time)
-To make the build.sh executabe, run this once:
+To make the build.sh executable, run this once:
 
 ```
 chmod +x build.sh

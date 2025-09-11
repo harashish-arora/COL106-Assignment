@@ -29,35 +29,35 @@ void update_heaps(File* f) {
 void handle_create(stringstream& ss) {
     string fname;
     if (!(ss >> fname)) {
-        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: CREATE <filename>\n" << RESET_COLOR;
+        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: CREATE <filename>" << endl << RESET_COLOR;
         return;
     }
     if (file_table.exists(fname)) {
-        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' already exists.\n" << RESET_COLOR;
+        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' already exists." << endl << RESET_COLOR;
         return;
     }
     File* f = new File(fname);
     file_table.put(fname, f);
     recentHeap.insert(f);
     biggestHeap.insert(f);
-    cout << SUCCESS_COLOR << "File '" << fname << "' created successfully.\n" << RESET_COLOR;
+    cout << SUCCESS_COLOR << "File '" << fname << "' created successfully." << endl << RESET_COLOR;
 }
 
 // READ
 void handle_read(stringstream& ss) {
     string fname;
     if (!(ss >> fname)) {
-        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: READ <filename>\n" << RESET_COLOR;
+        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: READ <filename>" << endl << RESET_COLOR;
         return;
     }
     File* f = file_table.get(fname);
     if (!f) { 
-        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' not found.\n" << RESET_COLOR; 
+        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' not found." << endl << RESET_COLOR; 
         return; 
     }
     cout << SUCCESS_COLOR << "Content of '" << fname << "' (Version " 
-         << f->get_active_version()->get_version_id() << "):\n"
-         << f->Read() << "\n" << RESET_COLOR;
+         << f->get_active_version()->get_version_id() << "):" << endl
+         << f->Read() << "" << endl << RESET_COLOR;
 }
 
 // INSERT / UPDATE
@@ -65,21 +65,21 @@ void handle_insert_update(stringstream& ss, bool is_insert) {
     string fname;
     if (!(ss >> fname)) {
         cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: " 
-             << (is_insert ? "INSERT" : "UPDATE") << " <filename> <content>\n" << RESET_COLOR;
+             << (is_insert ? "INSERT" : "UPDATE") << " <filename> <content>" << endl << RESET_COLOR;
         return;
     }
     string content;
     getline(ss, content);
     if (content.empty() || content == " ") {
         cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: " 
-             << (is_insert ? "INSERT" : "UPDATE") << " <filename> <content>\n" << RESET_COLOR;
+             << (is_insert ? "INSERT" : "UPDATE") << " <filename> <content>" << endl << RESET_COLOR;
         return;
     }
     if (content[0] == ' ') content.erase(0,1);
 
     File* f = file_table.get(fname);
     if (!f) {
-        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' not found.\n" << RESET_COLOR;
+        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' not found." << endl << RESET_COLOR;
         return;
     }
 
@@ -94,36 +94,36 @@ void handle_insert_update(stringstream& ss, bool is_insert) {
          << " created for '" << fname
          << "'. Parent is version "
          << (parent ? parent->get_version_id() : -1)
-         << ".\n" << RESET_COLOR;
+         << "." << endl << RESET_COLOR;
 }
 
 // SNAPSHOT
 void handle_snapshot(stringstream& ss) {
     string fname;
     if (!(ss >> fname)) {
-        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: SNAPSHOT <filename> <message>\n" << RESET_COLOR;
+        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: SNAPSHOT <filename> <message>" << endl << RESET_COLOR;
         return;
     }
     string message;
     getline(ss, message);
     if (message.empty() || message == " ") {
-        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: SNAPSHOT <filename> <message>\n" << RESET_COLOR;
+        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: SNAPSHOT <filename> <message>" << endl << RESET_COLOR;
         return;
     }
     if (message[0] == ' ') message.erase(0,1);
 
     File* f = file_table.get(fname);
     if (!f) {
-        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' not found.\n" << RESET_COLOR;
+        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' not found." << endl << RESET_COLOR;
         return;
     }
 
     try {
         f->Snapshot(message);
         cout << SUCCESS_COLOR << "Snapshot created for '" << fname 
-             << "' with message: " << message << "\n" << RESET_COLOR;
+             << "' with message: " << message << "" << endl << RESET_COLOR;
     } catch (const exception& e) {
-        cout << ERR_COLOR_YELLOW << "Error: " << e.what() << "\n" << RESET_COLOR;
+        cout << ERR_COLOR_YELLOW << "Error: " << e.what() << "" << endl << RESET_COLOR;
     }
 }
 
@@ -131,43 +131,43 @@ void handle_snapshot(stringstream& ss) {
 void handle_rollback(stringstream& ss) {
     string fname;
     if (!(ss >> fname)) {
-        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: ROLLBACK <filename> [versionID]\n" << RESET_COLOR;
+        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: ROLLBACK <filename> [versionID]" << endl << RESET_COLOR;
         return;
     }
     File* f = file_table.get(fname);
     if (!f) { 
-        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' not found.\n" << RESET_COLOR; 
+        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' not found." << endl << RESET_COLOR; 
         return;
     }
 
     int versionID;
     if (ss >> versionID) {
         if (versionID < 0) {
-            cout << ERR_COLOR_YELLOW << "Error: VersionID must be non-negative.\n" << RESET_COLOR;
+            cout << ERR_COLOR_YELLOW << "Error: VersionID must be non-negative." << endl << RESET_COLOR;
             return;
         }
         try {
             f->Rollback(versionID);
             cout << SUCCESS_COLOR << "Active version for '" << fname 
-                 << "' set to " << versionID << ".\n" << RESET_COLOR;
+                 << "' set to " << versionID << "." << endl << RESET_COLOR;
         } catch (...) {
             cout << ERR_COLOR_YELLOW << "Error: Version " << versionID 
-                 << " not found for file '" << fname << "'.\n" << RESET_COLOR;
+                 << " not found for file '" << fname << "'." << endl << RESET_COLOR;
         }
     } else {
         TreeNode* active = f->get_active_version();
         TreeNode* parent = (active ? active->get_parent() : nullptr);
         if (!parent) {
-            cout << ERR_COLOR_YELLOW << "Error: Cannot rollback from root version.\n" << RESET_COLOR;
+            cout << ERR_COLOR_YELLOW << "Error: Cannot rollback from root version." << endl << RESET_COLOR;
             return;
         }
         int parentID = parent->get_version_id();
         try {
             f->Rollback();
             cout << SUCCESS_COLOR << "Active version for '" << fname 
-                 << "' set to parent version " << parentID << ".\n" << RESET_COLOR;
+                 << "' set to parent version " << parentID << "." << endl << RESET_COLOR;
         } catch (const exception& e) {
-            cout << ERR_COLOR_YELLOW << "Error: " << e.what() << "\n" << RESET_COLOR;
+            cout << ERR_COLOR_YELLOW << "Error: " << e.what() << "" << endl << RESET_COLOR;
         }
     }
 }
@@ -176,19 +176,19 @@ void handle_rollback(stringstream& ss) {
 void handle_history(stringstream& ss) {
     string fname;
     if (!(ss >> fname)) {
-        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: HISTORY <filename>\n" << RESET_COLOR;
+        cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: HISTORY <filename>" << endl << RESET_COLOR;
         return;
     }
     File* f = file_table.get(fname);
     if (!f) { 
-        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' not found.\n" << RESET_COLOR; 
+        cout << ERR_COLOR_YELLOW << "Error: File '" << fname << "' not found." << endl << RESET_COLOR; 
         return; 
     }
     auto hist = f->History();
     for (auto* node : hist) {
         cout << node->get_version_id() << " "
              << node->get_snapshot_time() << " "
-             << node->get_message() << "\n";
+             << node->get_message() << "" << endl;
     }
 }
 
@@ -196,16 +196,16 @@ void handle_heap_query(MaxHeap& heap, stringstream& ss, bool is_recent) {
     int num;
     if (!(ss >> num)) {
         cout << ERR_COLOR_YELLOW << "Error: Invalid command. Usage: " 
-             << (is_recent ? "RECENT_FILES <k>" : "BIGGEST_TREES <k>") << "\n" << RESET_COLOR;
+             << (is_recent ? "RECENT_FILES <k>" : "BIGGEST_TREES <k>") << "" << endl << RESET_COLOR;
         return;
     }
     if (num <= 0) {
-        cout << ERR_COLOR_YELLOW << "Error: Invalid command. k must be positive.\n" << RESET_COLOR;
+        cout << ERR_COLOR_YELLOW << "Error: Invalid command. k must be positive." << endl << RESET_COLOR;
         return;
     }
     if (num > heap.size()) {
         cout << ERR_COLOR_YELLOW << "Error: k cannot exceed number of files. Currently only " 
-             << heap.size() << " file(s) exist.\n" << RESET_COLOR;
+             << heap.size() << " file(s) exist." << endl << RESET_COLOR;
         return;
     }
 
@@ -216,7 +216,7 @@ void handle_heap_query(MaxHeap& heap, stringstream& ss, bool is_recent) {
     }
     for (File* f : results) {
         cout << SUCCESS_COLOR << f->get_filename() << " "
-             << (is_recent ? f->get_last_modified() : f->get_total_versions()) << "\n" << RESET_COLOR;
+             << (is_recent ? f->get_last_modified() : f->get_total_versions()) << "" << endl << RESET_COLOR;
         heap.insert(f); // put back
     }
 }
@@ -245,13 +245,13 @@ int main() {
             else if (cmd == "RECENT_FILES") handle_heap_query(recentHeap, ss, true);
             else if (cmd == "BIGGEST_TREES") handle_heap_query(biggestHeap, ss, false);
             else if (cmd == "EXIT") {
-                cout << EXIT_COLOR << "Exiting shell. Goodbye!\n" << RESET_COLOR;
+                cout << EXIT_COLOR << "Exiting shell. Goodbye!" << endl << RESET_COLOR;
                 break;
             }
-            else cout << ERR_COLOR_RED << "Error: Unknown command '" << cmd << "'.\n" << RESET_COLOR;
+            else cout << ERR_COLOR_RED << "Error: Unknown command '" << cmd << "'." << endl << RESET_COLOR;
         }
         catch (exception& e) {
-            cout << ERR_COLOR_YELLOW << "Error: " << e.what() << "\n" << RESET_COLOR;
+            cout << ERR_COLOR_YELLOW << "Error: " << e.what() << "" << endl << RESET_COLOR;
         }
     }
     return 0;
