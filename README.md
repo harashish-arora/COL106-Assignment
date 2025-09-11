@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-This project implements a simplified version control system for files using custom data structures (trees, hashmaps, heaps). It supports commands like `CREATE`, `INSERT`, `UPDATE`, `SNAPSHOT`, `ROLLBACK`, `HISTORY`, `RECENT_FILES`, and `BIGGEST_TREES`.
+This project implements a simplified version control system for files using custom data structures (trees, hashmaps, heaps). It supports commands like `CREATE`, `INSERT`, `UPDATE`, `SNAPSHOT`, `ROLLBACK`, `HISTORY`, `RECENT_FILES`, and `BIGGEST_TREES`. The command `EXIT` is used to exit from the shell.
 
 ## 2. File Structure and Explanations
 
