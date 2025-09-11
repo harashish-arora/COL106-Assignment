@@ -282,3 +282,80 @@ RECENT_FILES 10
    ./main < test.in
    ```
 3. Compare the output to the expected results (timestamps will differ).
+
+### Expected Output
+
+```
+File 'research_paper.tex' created successfully.
+New version 1 created for 'research_paper.tex'. Parent is version 0.
+Snapshot created for 'research_paper.tex' with message: v1.0-Abstract
+New version 2 created for 'research_paper.tex'. Parent is version 1.
+Snapshot created for 'research_paper.tex' with message: v1.1-Intro
+New version 3 created for 'research_paper.tex'. Parent is version 2.
+Snapshot created for 'research_paper.tex' with message: v1.2-Methods
+Active version for 'research_paper.tex' set to 1.
+New version 4 created for 'research_paper.tex'. Parent is version 1.
+Snapshot created for 'research_paper.tex' with message: v1.0.1-revised-abstract
+New version 5 created for 'research_paper.tex'. Parent is version 4.
+Snapshot created for 'research_paper.tex' with message: v1.0.2-new-section
+0 1757596479 This is the root
+1 1757596479 v1.0-Abstract
+4 1757596479 v1.0.1-revised-abstract
+5 1757596479 v1.0.2-new-section
+Active version for 'research_paper.tex' set to 2.
+New version 6 created for 'research_paper.tex'. Parent is version 2.
+Snapshot created for 'research_paper.tex' with message: v1.1.1-alt-intro
+0 1757596479 This is the root
+1 1757596479 v1.0-Abstract
+2 1757596479 v1.1-Intro
+6 1757596479 v1.1.1-alt-intro
+File 'dataset.csv' created successfully.
+New version 1 created for 'dataset.csv'. Parent is version 0.
+Snapshot created for 'dataset.csv' with message: data-v1
+New version 2 created for 'dataset.csv'. Parent is version 1.
+Snapshot created for 'dataset.csv' with message: data-v2
+New version 3 created for 'dataset.csv'. Parent is version 2.
+Snapshot created for 'dataset.csv' with message: data-v3
+New version 4 created for 'dataset.csv'. Parent is version 3.
+Snapshot created for 'dataset.csv' with message: data-v4
+New version 5 created for 'dataset.csv'. Parent is version 4.
+Snapshot created for 'dataset.csv' with message: data-v5
+File 'main.py' created successfully.
+New version 1 created for 'main.py'. Parent is version 0.
+Snapshot created for 'main.py' with message: init
+research_paper.tex 7
+dataset.csv 6
+main.py 2
+research_paper.tex 7
+research_paper.tex 1757596479
+main.py 1757596479
+dataset.csv 1757596479
+Error: Invalid command. k must be positive.
+New version 6 created for 'dataset.csv'. Parent is version 5.
+research_paper.tex 1757596479
+Error: File 'research_paper.tex' already exists.
+Error: File 'non_existent.file' not found.
+Error: File 'non_existent.file' not found.
+Error: File 'non_existent.file' not found.
+Error: File 'non_existent.file' not found.
+Error: Version 100 not found for file 'research_paper.tex'.
+Active version for 'research_paper.tex' set to parent version 2.
+Active version for 'research_paper.tex' set to 0.
+Error: Invalid command. Usage: ROLLBACK <filename> [versionID]
+Error: Invalid command. Usage: INSERT <filename> <content>
+Error: Invalid command. Usage: UPDATE <filename> <content>
+Error: Invalid command. Usage: SNAPSHOT <filename> <message>
+New version 7 created for 'research_paper.tex'. Parent is version 0.
+Content of 'research_paper.tex' (Version 7):
+Attempted
+File 'notes.md' created successfully.
+Error: Version already snapshotted
+Error: Cannot rollback from root version.
+Error: Cannot rollback from root version.
+New version 1 created for 'notes.md'. Parent is version 0.
+Snapshot created for 'notes.md' with message: second
+0 1757596479 This is the root
+1 1757596479 second
+Error: k cannot exceed number of files. Currently only 4 file(s) exist.
+Error: k cannot exceed number of files. Currently only 4 file(s) exist.
+```
