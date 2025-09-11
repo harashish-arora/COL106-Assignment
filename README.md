@@ -139,7 +139,8 @@ The system provides clear error messages for all invalid inputs and operations:
 
 ## 8. Complexity Analysis
 
-- CREATE, READ, INSERT, UPDATE, SNAPSHOT, ROLLBACK: O(1) average (excluding string concatenation).
+- CREATE, INSERT, UPDATE: O(log n) average (excluding string concatenation).
+- READ, SNAPSHOT, ROLLBACK: O(1)
 - HISTORY: O(h), where h is tree height.
 - RECENT_FILES / BIGGEST_TREES: O(k log n).
 
